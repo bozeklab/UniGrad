@@ -5,6 +5,7 @@ port: 28500 # distributed port
 # dataset
 train_datadir: '/data/pwojcik/images_he_seg/positive'
 test_datadir: '/data/pwojcik/images_he_seg/positive'
+encoder_path: '/data/pwojcik/SimMIM/output_dir_ft/encoder-1600.pth'
 n_workers: 5
 input_size: 224
 num_boxes: 150

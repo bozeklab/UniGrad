@@ -3,6 +3,39 @@ import math
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from util.pos_embed import interpolate_pos_embed
+
+from project.unetr_vits import unetr_vit_base_patch16, cell_vit_base_patch16
+
+
+def prepare_unetr_model(chkpt_dir_vit, **kwargs):
+    # build ViT encoder
+    num_nuclei_classes = kwargs.pop('num_nuclei_classes')
+    num_tissue_classes = kwargs.pop('num_tissue_classes')
+    embed_dim = kwargs.pop('embed_dim')
+    extract_layers = kwargs.pop('extract_layers')
+    drop_rate = kwargs['drop_path_rate']
+
+    vit_encoder = unetr_vit_base_patch16(num_classes=num_tissue_classes, **kwargs)
+
+    # load ViT model
+    checkpoint = torch.load(chkpt_dir_vit, map_location='cpu')
+
+    checkpoint_model = checkpoint['model']
+    interpolate_pos_embed(vit_encoder, checkpoint_model)
+
+    msg = vit_encoder.load_state_dict(checkpoint['model'], strict=False)
+    print(msg)
+    # assert set(msg.missing_keys) == {'head.weight', 'head.bias', 'fc_norm.weight', 'fc_norm.bias'}
+
+    model = cell_vit_base_patch16(num_nuclei_classes=num_nuclei_classes,
+                                  embed_dim=embed_dim,
+                                  extract_layers=extract_layers,
+                                  drop_rate=drop_rate,
+                                  encoder=vit_encoder)
+    model.freeze_encoder()
+    model.cuda()
+    return model
 
 
 def build_model(cfg):
@@ -34,8 +67,14 @@ class SiameseNet(nn.Module):
         super(SiameseNet, self).__init__()
         self.cfg = cfg
         
-        zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
-        net = getattr(models.resnet, cfg.arch)(zero_init_residual=zero_init_residual)
+        #zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
+        net = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
+                                  init_values=None,
+                                  drop_path_rate=0.1,
+                                  num_nuclei_classes=6,
+                                  num_tissue_classes=19,
+                                  embed_dim=768,
+                                  extract_layers=[3, 6, 9, 12])
 
         # build online branch
         self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
@@ -57,7 +96,7 @@ class SiameseNet(nn.Module):
         for param_q, param_k in zip(self.projector.parameters(), self.momentum_projector.parameters()):
             param_k.data = param_k.data * mm + param_q.data * (1. - mm)
 
-    def forward(self, x1, x2, mm):
+    def forward(self, x1, x2, boxes1, boxes2, mask, mm):
         """
         Input:
             x1: first views of images
@@ -67,8 +106,8 @@ class SiameseNet(nn.Module):
             See Sec. 3 of https:/ /arxiv.org/abs/2011.10566 for detailed notations
         """  
         # online branch
-        y1 = self.encoder(x1)
-        y2 = self.encoder(x2)
+        y1 = self.encoder(x1, boxes1, mask)
+        y2 = self.encoder(x2, boxes2, mask)
         z1 = self.projector(y1)
         z2 = self.projector(y2)
         

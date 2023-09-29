@@ -121,10 +121,17 @@ class Pretrainer:
                 with torch.cuda.amp.autocast():
                     x1 = data['x1'].cuda(non_blocking=True)
                     x2 = data['x2'].cuda(non_blocking=True)
+                    boxes1 = data['boxes1'].cuda(non_blocking=True)
+                    boxes2 = data['boxes2'].cuda(non_blocking=True)
+
+                    mask1 = torch.all(boxes1 != -1, dim=-1)
+                    mask2 = torch.all(boxes2 != -1, dim=-1)
+                    mask2 = mask2.detach()
+                    mask = torch.logical_and(mask1, mask2)
                     data_time.update(time.time() - end)
 
                     # forward
-                    z1, z2, z1m, z2m = self.model(x1, x2, mm=mm)
+                    z1, z2, z1m, z2m = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
 
                     # normalize
                     z1 = torch.nn.functional.normalize(z1)
