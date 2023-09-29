@@ -3,9 +3,12 @@ launcher: pytorch # pytorch or slurm
 port: 28500 # distributed port
 
 # dataset
-train_datadir: '/path/to/imagenet/train/data'
-test_datadir: '/path/to/imagenet/val/data'
+train_datadir: '/data/pwojcik/images_he_seg/positive'
+test_datadir: '/data/pwojcik/images_he_seg/positive'
 n_workers: 5
+input_size: 256
+num_boxes: 150
+crop_min: 0.2
 
 # model
 arch: 'resnet50'

@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import torchvision
 
-from .dataloader import build_dataloader
+from .dataloader import build_dataloader, build_he_dataloader
 from .model import build_model
 from .utils import AverageMeter
 from .utils import concat_all_gather
@@ -19,7 +19,7 @@ class Pretrainer:
         self.logger = logger
 
         # build dataloader
-        self.train_loader, self.memory_loader, self.test_loader = build_dataloader(self.cfg)
+        self.train_loader, self.memory_loader, self.test_loader = build_he_dataloader(self.cfg)
         self.total_steps = self.cfg.epochs * len(self.train_loader)
         self.warmup_steps = self.cfg.warmup_epochs * len(self.train_loader)
         

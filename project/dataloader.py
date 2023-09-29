@@ -3,8 +3,12 @@ import random
 from PIL import ImageFilter
 from PIL import Image, ImageOps
 import torch
+import os
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+
+from util.augmentation import DataAugmentationForSIMTraining
+from util.datasets import ImgWithPickledBoxesDataset
 
 
 class MultiViewDataInjector():
@@ -60,6 +64,47 @@ def build_transforms():
     ])
 
     return train_transform, test_transform
+
+
+def build_he_dataloader(cfg):
+    train_transform = DataAugmentationForSIMTraining(cfg)
+    print(f'Pre-train data transform:\n{train_transform}')
+
+    train_data = ImgWithPickledBoxesDataset(os.path.join(cfg.train_datadir), transform=train_transform)
+    print(f'Build dataset: train images = {len(train_data)}')
+    memory_data = ImgWithPickledBoxesDataset(root=cfg.train_datadir, transform=train_transform)
+    test_data = ImgWithPickledBoxesDataset(root=cfg.test_datadir, transform=train_transform)
+
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)
+    memory_sampler = torch.utils.data.distributed.DistributedSampler(memory_data)
+    test_sampler = torch.utils.data.distributed.DistributedSampler(test_data)
+    batch_size = int(cfg.whole_batch_size / torch.distributed.get_world_size())
+
+    train_loader = torch.utils.data.DataLoader(
+        dataset=train_data,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=cfg.n_workers,
+        sampler=train_sampler,
+        drop_last=True,
+        persistent_workers=True
+    )
+    memory_loader = torch.utils.data.DataLoader(
+        dataset=memory_data,
+        batch_size=512,
+        shuffle=False,
+        num_workers=cfg.n_workers,
+        sampler=memory_sampler,
+    )
+    test_loader = torch.utils.data.DataLoader(
+        dataset=test_data,
+        batch_size=256,
+        shuffle=False,
+        num_workers=cfg.n_workers,
+        sampler=test_sampler
+    )
+
+    return train_loader, memory_loader, test_loader
 
 
 def build_dataloader(cfg):
