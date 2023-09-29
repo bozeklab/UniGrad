@@ -6,7 +6,7 @@ port: 28500 # distributed port
 train_datadir: '/data/pwojcik/images_he_seg/positive'
 test_datadir: '/data/pwojcik/images_he_seg/positive'
 n_workers: 5
-input_size: 256
+input_size: 224
 num_boxes: 150
 crop_min: 0.2
 
