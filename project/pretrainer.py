@@ -119,9 +119,8 @@ class Pretrainer:
                 self.step += 1
 
                 with torch.cuda.amp.autocast():
-                    images = data[0]
-                    x1 = images[0].cuda(non_blocking=True)
-                    x2 = images[1].cuda(non_blocking=True)
+                    x1 = data['x1'].cuda(non_blocking=True)
+                    x2 = data['x2'].cuda(non_blocking=True)
                     data_time.update(time.time() - end)
 
                     # forward
