@@ -146,8 +146,8 @@ class Pretrainer:
                         self.logger.info(f"exit with loss value: {loss}")
                         return -1
 
-                losses.update(loss.item(), images[0].size(0))
-                pos_sims.update(pos_sim.item(), images[0].size(0))
+                losses.update(loss.item(), x1[0].size(0))
+                pos_sims.update(pos_sim.item(), x1[0].size(0))
                 
                 # compute gradient and do SGD step
                 self.optimizer.zero_grad()
