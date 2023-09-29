@@ -114,8 +114,8 @@ class SiameseNet(nn.Module):
         # target branch
         with torch.no_grad():
             self._momentum_update_key_encoder(mm)
-            y1m = self.momentum_encoder(x1)
-            y2m = self.momentum_encoder(x2)
+            y1m = self.momentum_encoder(x1, boxes1, mask)
+            y2m = self.momentum_encoder(x2, boxes2, mask)
             z1m = self.momentum_projector(y1m)
             z2m = self.momentum_projector(y2m)
 
