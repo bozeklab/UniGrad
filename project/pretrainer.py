@@ -132,12 +132,6 @@ class Pretrainer:
                     # forward
                     z1, z2, z1m, z2m = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
 
-                    print(z1.shape)
-                    print(z2.shape)
-                    print(z1m.shape)
-                    print(z2m.shape)
-                    print()
-
                     # normalize
                     z1 = torch.nn.functional.normalize(z1)
                     z2 = torch.nn.functional.normalize(z2)
