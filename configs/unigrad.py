@@ -16,6 +16,10 @@ arch: 'resnet50'
 projector_input_dim: 2048
 projector_hidden_dim: 2048
 projector_output_dim: 2048
+drop_rate: 0
+attn_drop_rate: 0.1
+drop_path_rate: 0.1
+embed_dim: 768
 num_layers: 3
 base_momentum: 0.996
 resume_path: 
