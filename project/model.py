@@ -116,8 +116,10 @@ class SiameseNet(nn.Module):
         """  
         # online branch
 
-        y1 = self.encoder(x1, boxes1, mask)
-        y2 = self.encoder(x2, boxes2, mask)
+        #y1 = self.encoder(x1, boxes1, mask)
+        #y2 = self.encoder(x2, boxes2, mask)
+        y1 = self.encoder(x1)
+        y2 = self.encoder(x2)
 
         z1 = self.projector(y1)
         z2 = self.projector(y2)
@@ -125,8 +127,10 @@ class SiameseNet(nn.Module):
         # target branch
         with torch.no_grad():
             self._momentum_update_key_encoder(mm)
-            y1m = self.momentum_encoder(x1, boxes1, mask)
-            y2m = self.momentum_encoder(x2, boxes2, mask)
+            #y1m = self.momentum_encoder(x1, boxes1, mask)
+            #y2m = self.momentum_encoder(x2, boxes2, mask)
+            y1m = self.momentum_encoder(x1)
+            y2m = self.momentum_encoder(x2)
             z1m = self.momentum_projector(y1m)
             z2m = self.momentum_projector(y2m)
 
