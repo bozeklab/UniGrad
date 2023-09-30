@@ -130,8 +130,8 @@ class Pretrainer:
                     data_time.update(time.time() - end)
 
                     print('per batch')
-                    print(x1[mask].shape)
-                    print(x2[mask].shape)
+                    print(boxes1[mask].shape)
+                    print(boxes2[mask].shape)
                     print('end batch')
 
                     # forward

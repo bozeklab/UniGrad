@@ -106,6 +106,7 @@ class SiameseNet(nn.Module):
             See Sec. 3 of https:/ /arxiv.org/abs/2011.10566 for detailed notations
         """  
         # online branch
+
         y1 = self.encoder(x1, boxes1, mask)
         y2 = self.encoder(x2, boxes2, mask)
 
