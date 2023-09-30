@@ -13,7 +13,7 @@ crop_min: 0.2
 
 # model
 arch: 'resnet50'
-projector_input_dim: 768
+projector_input_dim: 256
 projector_hidden_dim: 2048
 projector_output_dim: 2048
 drop_rate: 0
