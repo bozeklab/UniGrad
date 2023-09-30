@@ -108,9 +108,6 @@ class SiameseNet(nn.Module):
         # online branch
         y1 = self.encoder(x1, boxes1, mask)
         y2 = self.encoder(x2, boxes2, mask)
-        print('!!!')
-        print(y1.shape)
-        print(y2.shape)
 
         z1 = self.projector(y1)
         z2 = self.projector(y2)

@@ -329,6 +329,9 @@ class CellViT(nn.Module):
 
         _, b1 = self._forward_upsample(z0, z1, z2, z3, z4, self.common_decoder)
         boxes_features = self.extract_box_feature(x=b1, boxes_info=boxes, scale_factor=1., mask=mask)
+        print('!!!!')
+        print(boxes_features.shape)
+
         boxes_features = self.box_embed(boxes_features).squeeze()
         return boxes_features
 
