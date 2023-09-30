@@ -66,21 +66,30 @@ class SiameseNet(nn.Module):
     def __init__(self, cfg):
         super(SiameseNet, self).__init__()
         self.cfg = cfg
-        
+
+        zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
+        net = getattr(models.resnet, cfg.arch)(zero_init_residual=zero_init_residual)
+
+        # build online branch
+        self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
+        self.projector = _projection_mlp(self.cfg.projector_input_dim,
+                                         self.cfg.projector_hidden_dim,
+                                         self.cfg.projector_output_dim)
+
         #zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
-        self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
-                                           init_values=None,
-                                           drop_path_rate=cfg.drop_path_rate,
-                                           num_nuclei_classes=6,
-                                           num_tissue_classes=19,
-                                           embed_dim=cfg.embed_dim,
-                                           extract_layers=[3, 6, 9, 12])
+        #self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
+        #                                   init_values=None,
+        #                                   drop_path_rate=cfg.drop_path_rate,
+        #                                   num_nuclei_classes=6,
+        #                                   num_tissue_classes=19,
+        #                                   embed_dim=cfg.embed_dim,
+        #                                   extract_layers=[3, 6, 9, 12])
 
         # build online branch
         #self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
-        self.projector = _projection_mlp(self.cfg.projector_input_dim,
-                                            self.cfg.projector_hidden_dim,
-                                            self.cfg.projector_output_dim)
+        #self.projector = _projection_mlp(self.cfg.projector_input_dim,
+        #                                    self.cfg.projector_hidden_dim,
+        #                                    self.cfg.projector_output_dim)
 
         # build target branch
         self.momentum_encoder = copy.deepcopy(self.encoder)
