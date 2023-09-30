@@ -394,7 +394,7 @@ class CellViT(nn.Module):
         print('b1')
         print(b1.shape)
         print('!!!!')
-        print('b1')
+        print('b2')
         print(b2.shape)
         print('!!!!')
 
