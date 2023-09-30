@@ -126,7 +126,6 @@ class Pretrainer:
 
                     mask1 = torch.all(boxes1 != -1, dim=-1)
                     mask2 = torch.all(boxes2 != -1, dim=-1)
-                    mask2 = mask2.detach()
                     mask = torch.logical_and(mask1, mask2)
                     data_time.update(time.time() - end)
 

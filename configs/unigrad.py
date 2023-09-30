@@ -13,7 +13,7 @@ crop_min: 0.2
 
 # model
 arch: 'resnet50'
-projector_input_dim: 128
+projector_input_dim: 768
 projector_hidden_dim: 2048
 projector_output_dim: 2048
 drop_rate: 0
@@ -26,7 +26,7 @@ resume_path:
 
 # optimizer
 base_lr: 0.05
-whole_batch_size: 256
+whole_batch_size: 128
 momentum: 0.9
 weight_decay: 1.0e-4
 epochs: 100
