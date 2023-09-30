@@ -68,13 +68,13 @@ class SiameseNet(nn.Module):
         self.cfg = cfg
         
         #zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
-        net = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
-                                  init_values=None,
-                                  drop_path_rate=0.1,
-                                  num_nuclei_classes=6,
-                                  num_tissue_classes=19,
-                                  embed_dim=768,
-                                  extract_layers=[3, 6, 9, 12])
+        self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
+                                           init_values=None,
+                                           drop_path_rate=0.1,
+                                           num_nuclei_classes=6,
+                                           num_tissue_classes=19,
+                                           embed_dim=768,
+                                           extract_layers=[3, 6, 9, 12])
 
         # build online branch
         #self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
