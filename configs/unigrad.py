@@ -7,7 +7,7 @@ train_datadir: '/scratch/pwojcik/images_he_seg1000'
 test_datadir: '/scratch/pwojcik/images_he_seg1000'
 encoder_path: '/scratch/pwojcik/encoder-1600.pth'
 n_workers: 5
-input_size: 224
+input_size: 256
 num_boxes: 150
 crop_min: 0.2
 

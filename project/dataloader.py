@@ -108,7 +108,7 @@ def build_he_dataloader(cfg):
 
 
 def build_dataloader(cfg):
-    debug = getattr(cfg, 'debug', False)
+    #debug = getattr(cfg, 'debug', False)
 
     train_transform, test_transform = build_transforms()
 
