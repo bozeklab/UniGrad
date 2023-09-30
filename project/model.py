@@ -113,7 +113,8 @@ class SiameseNet(nn.Module):
         print('y1')
         print(y1.shape)
         print('y2')
-        print(y2)
+        print(y2.shape)
+        print('...')
 
         z1 = self.projector(y1)
         z2 = self.projector(y2)
