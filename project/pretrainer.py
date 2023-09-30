@@ -129,6 +129,11 @@ class Pretrainer:
                     mask = torch.logical_and(mask1, mask2)
                     data_time.update(time.time() - end)
 
+                    print('per batch')
+                    print(x1[mask].shape)
+                    print(x2[mask].shape)
+                    print('end batch')
+
                     # forward
                     z1, z2, z1m, z2m = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
 
