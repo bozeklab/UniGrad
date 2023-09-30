@@ -77,7 +77,7 @@ class SiameseNet(nn.Module):
                                   extract_layers=[3, 6, 9, 12])
 
         # build online branch
-        self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
+        #self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
         self.projector = _projection_mlp(self.cfg.projector_input_dim,
                                             self.cfg.projector_hidden_dim,
                                             self.cfg.projector_output_dim)
