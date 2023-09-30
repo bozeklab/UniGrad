@@ -110,6 +110,11 @@ class SiameseNet(nn.Module):
         y1 = self.encoder(x1, boxes1, mask)
         y2 = self.encoder(x2, boxes2, mask)
 
+        print('y1')
+        print(y1.shape)
+        print('y2')
+        print(y2)
+
         z1 = self.projector(y1)
         z2 = self.projector(y2)
         

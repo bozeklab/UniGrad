@@ -136,6 +136,7 @@ class Pretrainer:
                     print(z2.shape)
                     print(z1m.shape)
                     print(z2m.shape)
+                    print()
 
                     # normalize
                     z1 = torch.nn.functional.normalize(z1)
