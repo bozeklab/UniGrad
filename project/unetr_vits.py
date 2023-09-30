@@ -333,7 +333,7 @@ class CellViT(nn.Module):
         return boxes_features
 
     def extract_box_feature(self, x, boxes_info, scale_factor, mask):
-        boxes_info = boxes_info[mask]
+        boxes_info=boxes_info
         batch_size, h, w, embed_dim = x.shape
         num_box = boxes_info.shape[1]
         #batch_size = x.shape[0]
@@ -350,7 +350,7 @@ class CellViT(nn.Module):
         aligned_out = roi_align(input=x, boxes=roi_info, spatial_scale=scale_factor,
                                 output_size=8)
 
-        aligned_out = aligned_out.view(batch_size, num_box, embed_dim, 8, 8)
+        aligned_out = aligned_out.view(batch_size, num_box, embed_dim, 8, 8)[mask]
         aligned_out.view(-1, embed_dim, 8, 8)
 
         return aligned_out
