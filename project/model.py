@@ -1,5 +1,5 @@
 import copy
-import math 
+import math
 import torch
 import torch.nn as nn
 import torchvision.models as models
@@ -44,7 +44,7 @@ def build_model(cfg):
         # Apply SyncBN
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
         model.cuda()
-        
+
         # DistributedDataParallel will divide and allocate batch_size to all
         # available GPUs if device_ids are not set
         model = torch.nn.parallel.DistributedDataParallel(model,
@@ -53,7 +53,7 @@ def build_model(cfg):
     else:
         # this code only supports DistributedDataParallel.
         raise NotImplementedError("Only DistributedDataParallel is supported.")
-    
+
     return model
 
 
@@ -67,17 +67,29 @@ class SiameseNet(nn.Module):
         super(SiameseNet, self).__init__()
         self.cfg = cfg
 
+        # zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
+        self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
+                                           init_values=None,
+                                           drop_path_rate=cfg.drop_path_rate,
+                                           num_nuclei_classes=6,
+                                           num_tissue_classes=19,
+                                           embed_dim=cfg.embed_dim,
+                                           extract_layers=[3, 6, 9, 12])
+
         zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
         net = getattr(models.resnet, cfg.arch)(zero_init_residual=zero_init_residual)
 
         # build online branch
+        # self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
         self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
         self.projector = _projection_mlp(self.cfg.projector_input_dim,
                                          self.cfg.projector_hidden_dim,
                                          self.cfg.projector_output_dim)
+        self.cfg.projector_hidden_dim,
+        self.cfg.projector_output_dim)
 
-        #zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
-        #self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
+        # zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
+        # self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
         #                                   init_values=None,
         #                                   drop_path_rate=cfg.drop_path_rate,
         #                                   num_nuclei_classes=6,
@@ -86,55 +98,54 @@ class SiameseNet(nn.Module):
         #                                   extract_layers=[3, 6, 9, 12])
 
         # build online branch
-        #self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
-        #self.projector = _projection_mlp(self.cfg.projector_input_dim,
+        # self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
+        # self.projector = _projection_mlp(self.cfg.projector_input_dim,
         #                                    self.cfg.projector_hidden_dim,
         #                                    self.cfg.projector_output_dim)
 
         # build target branch
         self.momentum_encoder = copy.deepcopy(self.encoder)
-        self.momentum_projector = copy.deepcopy(self.projector)
-        
-    @torch.no_grad()
-    def _momentum_update_key_encoder(self, mm):
-        """
-        Momentum update of the key encoder
-        """
-        for param_q, param_k in zip(self.encoder.parameters(), self.momentum_encoder.parameters()):
-            param_k.data = param_k.data * mm + param_q.data * (1. - mm)
-        for param_q, param_k in zip(self.projector.parameters(), self.momentum_projector.parameters()):
-            param_k.data = param_k.data * mm + param_q.data * (1. - mm)
+        self.momentum_projector = copy.deepcopy(self.projector) \
+ \
+                                  @ torch.no_grad()
 
-    def forward(self, x1, x2, boxes1, boxes2, mask, mm):
-        """
-        Input:
-            x1: first views of images
-            x2: second views of images
-        Output:
-            p1, p2, z1, z2: predictors and targets of the network
-            See Sec. 3 of https:/ /arxiv.org/abs/2011.10566 for detailed notations
-        """  
-        # online branch
 
-        #y1 = self.encoder(x1, boxes1, mask)
-        #y2 = self.encoder(x2, boxes2, mask)
-        y1 = self.encoder(x1)
-        y2 = self.encoder(x2)
+def _momentum_update_key_encoder(self, mm):
+    """
+    Momentum update of the key encoder
+    """
+    for param_q, param_k in zip(self.encoder.parameters(), self.momentum_encoder.parameters()):
+        param_k.data = param_k.data * mm + param_q.data * (1. - mm)
+    for param_q, param_k in zip(self.projector.parameters(), self.momentum_projector.parameters()):
+        param_k.data = param_k.data * mm + param_q.data * (1. - mm)
 
-        z1 = self.projector(y1)
-        z2 = self.projector(y2)
-        
-        # target branch
-        with torch.no_grad():
-            self._momentum_update_key_encoder(mm)
-            #y1m = self.momentum_encoder(x1, boxes1, mask)
-            #y2m = self.momentum_encoder(x2, boxes2, mask)
-            y1m = self.momentum_encoder(x1)
-            y2m = self.momentum_encoder(x2)
-            z1m = self.momentum_projector(y1m)
-            z2m = self.momentum_projector(y2m)
 
-        return z1, z2, z1m, z2m
+def forward(self, x1, x2, boxes1, boxes2, mask, mm):
+    """
+    Input:
+        x1: first views of images
+        x2: second views of images
+    Output:
+        p1, p2, z1, z2: predictors and targets of the network
+        See Sec. 3 of https:/ /arxiv.org/abs/2011.10566 for detailed notations
+    """
+    # online branch
+
+    y1 = self.encoder(x1, boxes1, mask)
+    y2 = self.encoder(x2, boxes2, mask)
+
+    z1 = self.projector(y1)
+    z2 = self.projector(y2)
+
+    # target branch
+    with torch.no_grad():
+        self._momentum_update_key_encoder(mm)
+        y1m = self.momentum_encoder(x1, boxes1, mask)
+        y2m = self.momentum_encoder(x2, boxes2, mask)
+        z1m = self.momentum_projector(y1m)
+        z2m = self.momentum_projector(y2m)
+
+    return z1, z2, z1m, z2m
 
 
 def _projection_mlp(in_dims: int,
@@ -168,5 +179,5 @@ def _projection_mlp(in_dims: int,
     l3 = nn.Sequential(nn.Linear(h_dims, out_dims))
 
     projection = nn.Sequential(l1, l2, l3)
-    
+
     return projection
