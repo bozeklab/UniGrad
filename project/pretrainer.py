@@ -146,7 +146,6 @@ class Pretrainer:
                         print(f'{torch.cuda.current_device()} {loss}') 
                     return_flag = torch.tensor([0]).cuda()
                     if torch.isnan(loss):
-                        print('!!!!!!! dada')
                         return_flag = torch.tensor([1]).cuda()
                     torch.distributed.all_reduce(return_flag)
                     if return_flag:
