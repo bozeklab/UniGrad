@@ -302,6 +302,8 @@ class Pretrainer:
         pos_term = -z2m
 
         weight = z1@all_neg_samples.t()
+        print(weight)
+        print(self.cfg.moco_t)
         weight = torch.nn.functional.softmax(weight/self.cfg.moco_t, dim=-1)
         neg_term = weight@all_neg_samples
 
