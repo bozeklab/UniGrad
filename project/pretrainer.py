@@ -205,7 +205,7 @@ class Pretrainer:
                 feature = torch.nn.functional.normalize(feature, dim=1)
                 feature_bank.append(feature.clone())
                 target_bank.append(target.cuda().clone())
-                i += 1co
+                i += 1
                 
             # [D, N]
             feature_bank = torch.cat(feature_bank, dim=0).t().contiguous()
