@@ -305,6 +305,7 @@ class Pretrainer:
         print(weight)
         print(self.cfg.moco_t)
         weight = torch.nn.functional.softmax(weight/self.cfg.moco_t, dim=-1)
+        print(weight)
         neg_term = weight@all_neg_samples
 
         grad1 = (pos_term + neg_term) / self.cfg.moco_t
