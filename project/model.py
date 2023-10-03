@@ -24,8 +24,8 @@ def prepare_unetr_model(chkpt_dir_vit, **kwargs):
     checkpoint_model = checkpoint['model']
     interpolate_pos_embed(vit_encoder, checkpoint_model)
 
-    msg = vit_encoder.load_state_dict(checkpoint['model'], strict=False)
-    print(msg)
+    #msg = vit_encoder.load_state_dict(checkpoint['model'], strict=False)
+    #print(msg)
     # assert set(msg.missing_keys) == {'head.weight', 'head.bias', 'fc_norm.weight', 'fc_norm.bias'}
 
     model = cell_vit_base_patch16(num_nuclei_classes=num_nuclei_classes,
