@@ -7,6 +7,9 @@ train_datadir: 'pwojcik/pannuke/fold_1_3_256/positive/'
 test_datadir: 'pwojcik/pannuke/fold_2_256/positive/'
 encoder_path: '/scratch/pwojcik/encoder-1600.pth'
 n_workers: 5
+input_size: 256
+num_boxes: 150
+crop_min: 0.2
 
 # model
 arch: 'resnet50'
