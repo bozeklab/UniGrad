@@ -296,11 +296,16 @@ class Pretrainer:
         torch.distributed.all_gather(neg_gather, neg_samples, async_op=False)
         all_neg_samples = torch.cat(neg_gather, dim=0)
 
+        print('!!!')
+        print(all_neg_samples.shape)
+
+
         # loss1 from z1 and z2m
         pos_term = -z2m
 
         weight = z1@all_neg_samples.t()
         weight = torch.nn.functional.softmax(weight/self.cfg.moco_t, dim=-1)
+        print(weight)
         neg_term = weight@all_neg_samples
 
         grad1 = (pos_term + neg_term) / self.cfg.moco_t
