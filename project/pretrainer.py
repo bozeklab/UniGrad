@@ -291,6 +291,8 @@ class Pretrainer:
 
     def loss_simclr_grad_mm(self, z1, z2, z1m, z2m):
         # gather neg samples
+        print('!!')
+        print(z1.shape, z2.shape, z1m.shape, z2m.shape)
         neg_samples = torch.cat([z1m, z2m], dim=0)
         neg_gather = [torch.ones_like(neg_samples) for _ in range(torch.distributed.get_world_size())]
         torch.distributed.all_gather(neg_gather, neg_samples, async_op=False)
