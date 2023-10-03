@@ -26,7 +26,7 @@ resume_path:
 
 # optimizer
 base_lr: 0.05
-whole_batch_size: 128
+whole_batch_size: 256
 momentum: 0.9
 weight_decay: 1.0e-4
 epochs: 100
