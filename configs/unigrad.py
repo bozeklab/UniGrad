@@ -3,8 +3,8 @@ launcher: pytorch # pytorch or slurm
 port: 28500 # distributed port
 
 # dataset
-train_datadir: '/home/pwojcik/pwojcik/he_seg/positive'
-test_datadir: '/home/pwojcik/pannuke/fold_2_256/positive'
+train_datadir: '/scratch/pwojcik/images_he_seg1000'
+test_datadir: '/scratch/pwojcik/images_he_seg1000'
 encoder_path: '/scratch/pwojcik/encoder-1600.pth'
 n_workers: 5
 input_size: 256
