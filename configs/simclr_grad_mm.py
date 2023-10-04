@@ -25,7 +25,7 @@ base_momentum: 0.996
 resume_path: 
 
 # optimizer
-base_lr: 0.05
+base_lr: 0.01
 whole_batch_size: 128
 momentum: 0.9
 weight_decay: 1.0e-4
