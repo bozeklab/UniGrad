@@ -67,7 +67,7 @@ class SiameseNet(nn.Module):
         super(SiameseNet, self).__init__()
         self.cfg = cfg
 
-        # zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
+        zero_init_residual = getattr(self.cfg, 'zero_init_residual', True)
         self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
                                            init_values=None,
                                            drop_path_rate=cfg.drop_path_rate,
