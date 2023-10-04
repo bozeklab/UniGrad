@@ -3,9 +3,9 @@ launcher: pytorch # pytorch or slurm
 port: 28500 # distributed port
 
 # dataset
-train_datadir: '/home/pwojcik/pwojcik/pannuke/fold_1_3_256/positive/'
-test_datadir: '/home/pwojcik/pwojcik/pannuke/fold_2_256/positive/'
-encoder_path: '/scratch/pwojcik/encoder-1600.pth'
+train_datadir: '/data/pwojcik/pannuke_contrastive/fold_1_3_256/positive/'
+test_datadir: '/data/pwojcik/pannuke_contrastive/fold_2_256/positive/'
+encoder_path: '/data/pwojcik/SimMIM/output_dir_sim1600_skin/sim_base_1600ep_pretrain.pth'
 n_workers: 5
 input_size: 256
 num_boxes: 150
