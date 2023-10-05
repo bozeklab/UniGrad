@@ -77,9 +77,9 @@ class OneHeadNet(nn.Module):
 
         # build online branch
         # self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
-        self.projector = _projection_mlp(self.cfg.projector_input_dim,
-                                         self.cfg.projector_hidden_dim,
-                                         self.cfg.projector_output_dim)
+        #self.projector = _projection_mlp(self.cfg.projector_input_dim,
+        #                                self.cfg.projector_hidden_dim,
+        #                                self.cfg.projector_output_dim)
 
     def forward(self, x1, x2, boxes1, boxes2, mask):
         y1 = self.encoder(x1, boxes1, mask)
@@ -112,13 +112,13 @@ class SiameseNet(nn.Module):
 
         # build online branch
         # self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
-        self.projector = _projection_mlp(self.cfg.projector_input_dim,
-                                         self.cfg.projector_hidden_dim,
-                                         self.cfg.projector_output_dim)
+        #self.projector = _projection_mlp(self.cfg.projector_input_dim,
+        #                                 self.cfg.projector_hidden_dim,
+        #                                 self.cfg.projector_output_dim)
 
         # build target branch
         self.momentum_encoder = copy.deepcopy(self.encoder)
-        self.momentum_projector = copy.deepcopy(self.projector)
+        #self.momentum_projector = copy.deepcopy(self.projector)
         self.teacher_norm = LayerNorm(self.cfg.projector_output_dim, elementwise_affine=False)
         #self.student_norm = LayerNorm(self.cfg.projector_output_dim)
         #for p in self.student_norm.parameters():
@@ -134,8 +134,8 @@ class SiameseNet(nn.Module):
         """
         for param_q, param_k in zip(self.encoder.parameters(), self.momentum_encoder.parameters()):
             param_k.data = param_k.data * mm + param_q.data * (1. - mm)
-        for param_q, param_k in zip(self.projector.parameters(), self.momentum_projector.parameters()):
-            param_k.data = param_k.data * mm + param_q.data * (1. - mm)
+        #for param_q, param_k in zip(self.projector.parameters(), self.momentum_projector.parameters()):
+        #    param_k.data = param_k.data * mm + param_q.data * (1. - mm)
 
     def forward(self, x1, x2, boxes1, boxes2, mask, mm):
         """
@@ -148,15 +148,15 @@ class SiameseNet(nn.Module):
         """
         # online branch
 
-        y1 = self.encoder(x1, boxes1, mask)
-        pred = self.projector(y1)
+        pred = self.encoder(x1, boxes1, mask)
+        #pred = self.projector(y1)
         pred = self.student_norm(pred)
 
         # target branch
         with torch.no_grad():
             self._momentum_update_key_encoder(mm)
-            y2m = self.momentum_encoder(x2, boxes2, mask)
-            target = self.momentum_projector(y2m)
+            target = self.momentum_encoder(x2, boxes2, mask)
+            #target = self.momentum_projector(y2m)
             target = self.teacher_norm(target)
         return pred, target
 
