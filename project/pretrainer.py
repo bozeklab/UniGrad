@@ -310,6 +310,8 @@ class Pretrainer:
 
         neg_term = torch.diagonal(dense_pred @ correlation @ dense_pred.T).mean()
 
+        print(neg_term)
+
         loss = (pos_term + cfg.neg_weight * neg_term) / pred.shape[-1]
 
         return loss
