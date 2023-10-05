@@ -153,8 +153,10 @@ class SiameseNet(nn.Module):
             self._momentum_update_key_encoder(mm)
             y2m = self.momentum_encoder(x2, boxes2, mask)
             target = self.momentum_projector(y2m)
+            target = self.teacher_norm(target)
 
-        target = self.teacher_norm(target)
+        print(pred)
+        print(target)
 
         return pred, target
 
