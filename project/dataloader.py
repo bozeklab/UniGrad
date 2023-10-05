@@ -78,7 +78,8 @@ def build_he_dataloader(cfg):
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)
     memory_sampler = torch.utils.data.distributed.DistributedSampler(memory_data)
     test_sampler = torch.utils.data.distributed.DistributedSampler(test_data)
-    batch_size = int(cfg.whole_batch_size / torch.distributed.get_world_size())
+    batch_size = cfg.whole_batch_size
+    #batch_size = int(cfg.whole_batch_size / torch.distributed.get_world_size())
 
     train_loader = torch.utils.data.DataLoader(
         dataset=train_data,
