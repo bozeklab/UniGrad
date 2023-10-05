@@ -293,9 +293,9 @@ class Pretrainer:
         return loss, pos_sim
 
     def loss_unigrad2(self, pred, target, cfg):
-        pred = self.student_norm(pred)
-        with torch.no_grad():
-            target = self.teacher_norm(target)
+        #pred = self.student_norm(pred)
+        #with torch.no_grad():
+        #    target = self.teacher_norm(target)
 
         dense_pred = pred.reshape(-1, pred.shape[-1])
         dense_target = target.reshape(-1, target.shape[-1])

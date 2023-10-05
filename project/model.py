@@ -3,6 +3,8 @@ import math
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from torch.nn import LayerNorm
+
 from util.pos_embed import interpolate_pos_embed
 
 from project.unetr_vits import unetr_vit_base_patch16, cell_vit_base_patch16
@@ -117,6 +119,10 @@ class SiameseNet(nn.Module):
         # build target branch
         self.momentum_encoder = copy.deepcopy(self.encoder)
         self.momentum_projector = copy.deepcopy(self.projector)
+        self.teacher_norm = LayerNorm(self.cfg.projector_output_dim, elementwise_affine=False)
+        for p in self.teacher_norm.parameters():
+            p.requires_grad = False
+        self.student_norm = nn.Identity()
 
     @torch.no_grad()
     def _momentum_update_key_encoder(self, mm):
@@ -147,6 +153,8 @@ class SiameseNet(nn.Module):
             self._momentum_update_key_encoder(mm)
             y2m = self.momentum_encoder(x2, boxes2, mask)
             target = self.momentum_projector(y2m)
+
+        target = self.teacher_norm(target)
 
         return pred, target
 
