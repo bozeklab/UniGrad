@@ -39,12 +39,14 @@ def prepare_unetr_model(chkpt_dir_vit, **kwargs):
 
 
 def build_model(cfg):
-    model = SiameseNet(cfg)
+    if cfg.siamese == True:
+        model = SiameseNet(cfg)
+    else:
+        model = OneHeadNet(cfg)
     if torch.distributed.is_available():
         # Apply SyncBN
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
         model.cuda()
-
         # DistributedDataParallel will divide and allocate batch_size to all
         # available GPUs if device_ids are not set
         model = torch.nn.parallel.DistributedDataParallel(model,
@@ -55,6 +57,36 @@ def build_model(cfg):
         raise NotImplementedError("Only DistributedDataParallel is supported.")
 
     return model
+
+
+class OneHeadNet(nn.Module):
+
+    def __init__(self, cfg):
+        super(OneHeadNet, self).__init__()
+        self.cfg = cfg
+
+        self.encoder = prepare_unetr_model(chkpt_dir_vit=cfg.encoder_path,
+                                           init_values=None,
+                                           drop_path_rate=cfg.drop_path_rate,
+                                           num_nuclei_classes=6,
+                                           num_tissue_classes=19,
+                                           embed_dim=cfg.embed_dim,
+                                           extract_layers=[3, 6, 9, 12])
+
+        # build online branch
+        # self.encoder = nn.Sequential(*list(net.children())[:-1] + [nn.Flatten(1)])
+        self.projector = _projection_mlp(self.cfg.projector_input_dim,
+                                         self.cfg.projector_hidden_dim,
+                                         self.cfg.projector_output_dim)
+
+    def forward(self, x1, x2, boxes1, boxes2, mask):
+        y1 = self.encoder(x1, boxes1, mask)
+        y2 = self.encoder(x2, boxes2, mask)
+
+        z1 = self.projector(y1)
+        z2 = self.projector(y2)
+
+        return z1, z2
 
 
 class SiameseNet(nn.Module):

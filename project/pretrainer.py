@@ -8,6 +8,7 @@ import torch
 import torchvision
 
 from .dataloader import build_dataloader, build_he_dataloader
+from .loss import Contrast
 from .model import build_model
 from .utils import AverageMeter
 from .utils import concat_all_gather
@@ -32,10 +33,12 @@ class Pretrainer:
         self.scaler = torch.cuda.amp.GradScaler()
 
         # build loss
-        self.loss = getattr(self, self.cfg.loss)
+        #self.loss = getattr(self, self.cfg.loss)
+        self.loss = Contrast(cfg)
 
     def build_optimizer(self):
-        self.init_lr = self.cfg.base_lr * self.cfg.whole_batch_size / 256
+        self.init_lr = self.cfg.base_lr
+        #self.init_lr = self.cfg.base_lr * self.cfg.whole_batch_size / 256
 
         optim_params = self.model.module.parameters()
         optimizer = torch.optim.SGD(optim_params, self.init_lr,
@@ -105,7 +108,7 @@ class Pretrainer:
             batch_time = AverageMeter('Time', ':6.3f')
             data_time = AverageMeter('Data', ':6.3f')
             losses = AverageMeter('Loss', ':.4f')
-            pos_sims = AverageMeter('Pos Sim', ':.4f')
+            #pos_sims = AverageMeter('Pos Sim', ':.4f')
            
             # switch to train mode
             self.model.train()
@@ -130,16 +133,16 @@ class Pretrainer:
                     data_time.update(time.time() - end)
 
                     # forward
-                    z1, z2, z1m, z2m = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
+                    z1, z2 = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
 
                     # normalize
                     z1 = torch.nn.functional.normalize(z1)
                     z2 = torch.nn.functional.normalize(z2)
-                    z1m = torch.nn.functional.normalize(z1m)
-                    z2m = torch.nn.functional.normalize(z2m)
+                    #z1m = torch.nn.functional.normalize(z1m)
+                    #z2m = torch.nn.functional.normalize(z2m)
 
                     # compute loss
-                    loss, pos_sim = self.loss(z1, z2, z1m, z2m)
+                    loss = self.loss(z1, z2)
 
                     # exit if loss nan
                     if torch.any(torch.isnan(loss)):
@@ -153,7 +156,7 @@ class Pretrainer:
                         return -1
 
                 losses.update(loss.item(), x1[0].size(0))
-                pos_sims.update(pos_sim.item(), x1[0].size(0))
+                #pos_sims.update(pos_sim.item(), x1[0].size(0))
                 
                 # compute gradient and do SGD step
                 self.optimizer.zero_grad()
@@ -171,7 +174,7 @@ class Pretrainer:
                                      f'{str(batch_time)}  ' \
                                      f'{str(data_time)}  ' \
                                      f'{str(losses)} ' \
-                                     f'{str(pos_sims)} ' \
+                                     #f'{str(pos_sims)} ' \
                                      f'lr: {lr} ' \
                                      f'mm: {mm}')
 
@@ -301,7 +304,6 @@ class Pretrainer:
 
         weight = z1@all_neg_samples.t()
         weight = torch.nn.functional.softmax(weight/self.cfg.moco_t, dim=-1)
-        print(weight/self.cfg.moco_t)
         neg_term = weight@all_neg_samples
 
         grad1 = (pos_term + neg_term) / self.cfg.moco_t

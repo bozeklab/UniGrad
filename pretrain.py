@@ -11,6 +11,7 @@ from project.pretrainer import Pretrainer
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('config_path', help='path to config')
+    parser.add_argument("local_rank", type=int, default=0, help="local rank")
     
     args = parser.parse_args()
     return args
@@ -23,6 +24,8 @@ def main():
         cfg = yaml.safe_load(f)
     cfg = edict(cfg)
     cfg.config_path = args.config_path
+
+    cfg.local_rank = args.local_rank
 
     # init environment
     logger = init_environ(cfg)
