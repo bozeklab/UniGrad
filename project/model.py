@@ -119,7 +119,7 @@ class SiameseNet(nn.Module):
         # build target branch
         self.momentum_encoder = copy.deepcopy(self.encoder)
         #self.momentum_projector = copy.deepcopy(self.projector)
-        self.teacher_norm = LayerNorm(self.cfg.projector_output_dim, elementwise_affine=False)
+        self.teacher_norm = LayerNorm(self.cfg.projector_input_dim, elementwise_affine=False)
         #self.student_norm = LayerNorm(self.cfg.projector_output_dim)
         #for p in self.student_norm.parameters():
         #    p.requires_grad = False
