@@ -155,8 +155,6 @@ class SiameseNet(nn.Module):
             target = self.momentum_projector(y2m)
             target = self.teacher_norm(target)
 
-        print(pred)
-        print(target)
 
         return pred, target
 
