@@ -15,8 +15,8 @@ crop_min: 0.2
 arch: 'resnet50'
 siamese: True
 projector_input_dim: 768
-projector_hidden_dim: 2048
-projector_output_dim: 2048
+projector_hidden_dim: 1024
+projector_output_dim: 1024
 drop_rate: 0
 attn_drop_rate: 0.1
 drop_path_rate: 0.1
@@ -28,7 +28,7 @@ resume_path:
 # optimizer
 base_lr: 6.25e-5
 
-whole_batch_size: 64
+whole_batch_size: 128
 momentum: 0.9
 weight_decay: 1.0e-4
 epochs: 100
