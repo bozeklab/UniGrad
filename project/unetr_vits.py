@@ -292,8 +292,7 @@ class CellViT(nn.Module):
 
         self.apply(self._init_weights)
 
-        self.box_embed = PatchEmbed(img_size=16, patch_size=8,
-                                    in_chans=256, embed_dim=768)
+        self.box_embed = PatchEmbed(img_size=16, patch_size=8, in_chans=256, embed_dim=768)
 
     def forward(self, x, boxes, mask):
         """Forward pass
@@ -328,6 +327,8 @@ class CellViT(nn.Module):
         z1 = z1[:, 1:, :].transpose(-1, -2).view(-1, self.embed_dim, *patch_dim)
 
         _, b1 = self._forward_upsample(z0, z1, z2, z3, z4, self.common_decoder)
+        print('!!!')
+        print(b1.shape)
         boxes_features = self.extract_box_feature(x=b1, boxes_info=boxes, scale_factor=1., mask=mask)
         boxes_features = self.box_embed(boxes_features).squeeze()
         return boxes_features
