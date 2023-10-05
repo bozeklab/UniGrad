@@ -133,7 +133,7 @@ class Pretrainer:
                     data_time.update(time.time() - end)
 
                     # forward
-                    z1, z2 = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
+                    z1, z2 = self.model(x1, x2, boxes1, boxes2, mask)
 
                     # normalize
                     z1 = torch.nn.functional.normalize(z1)
