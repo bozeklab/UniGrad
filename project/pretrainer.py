@@ -142,7 +142,7 @@ class Pretrainer:
                     #z2m = torch.nn.functional.normalize(z2m)
 
                     # compute loss
-                    loss = self.loss(target, pred)
+                    loss = self.loss(target, pred, cfg)
 
                     # exit if loss nan
                     if torch.any(torch.isnan(loss)):
