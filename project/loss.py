@@ -8,8 +8,8 @@ class Contrast(torch.nn.Module):
         device = torch.device(f"cuda:{cfg.local_rank}")
         self.batch_size = cfg.whole_batch_size
         self.register_buffer("temp", torch.tensor(cfg.temperature).to(torch.device(f"cuda:{cfg.local_rank}")))
-        self.register_buffer("neg_mask", (~torch.eye(cfg.batch_size * 2,
-                                                     cfg.batch_size * 2, dtype=bool).to(device)).float())
+        self.register_buffer("neg_mask", (~torch.eye(self.batch_size * 2,
+                                                     self.batch_size * 2, dtype=bool).to(device)).float())
 
     def forward(self, x_i, x_j):
         z_i = F.normalize(x_i, dim=1)
