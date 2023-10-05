@@ -306,8 +306,10 @@ class Pretrainer:
         # compute neg term
         correlation = (dense_target.T @ dense_target) / dense_target.shape[0]
         torch.distributed.all_reduce(correlation)
+        print(correlation)
         correlation = correlation / torch.distributed.get_world_size()
         print(torch.distributed.get_world_size())
+        correlation
 
         neg_term = torch.diagonal(dense_pred @ correlation @ dense_pred.T).mean()
 
