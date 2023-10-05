@@ -13,7 +13,7 @@ crop_min: 0.2
 
 # model
 arch: 'resnet50'
-siamese: False
+siamese: True
 projector_input_dim: 768
 projector_hidden_dim: 2048
 projector_output_dim: 2048
@@ -26,16 +26,17 @@ base_momentum: 0.996
 resume_path:
 
 # optimizer
-base_lr: 0.00006
+base_lr: 6.25e-5
 
-whole_batch_size: 1
+whole_batch_size: 128
 momentum: 0.9
 weight_decay: 1.0e-4
 epochs: 100
 warmup_epochs: 5
 
 # loss
-loss: 'loss_simclr_grad_mm'
+loss: 'loss_unigrad2'
+neg_weight: 0.02
 lambd:      # balance factor for neg grad
 rho:        # for byol & unigrad only
 eps:        # for byol & unigrad only

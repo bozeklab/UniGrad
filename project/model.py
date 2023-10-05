@@ -33,7 +33,7 @@ def prepare_unetr_model(chkpt_dir_vit, **kwargs):
                                   extract_layers=extract_layers,
                                   drop_rate=drop_rate,
                                   encoder=vit_encoder)
-    #model.freeze_encoder()
+    model.freeze_encoder()
     model.cuda()
     return model
 
@@ -140,20 +140,15 @@ class SiameseNet(nn.Module):
         # online branch
 
         y1 = self.encoder(x1, boxes1, mask)
-        y2 = self.encoder(x2, boxes2, mask)
-
-        z1 = self.projector(y1)
-        z2 = self.projector(y2)
+        pred = self.projector(y1)
 
         # target branch
         with torch.no_grad():
             self._momentum_update_key_encoder(mm)
-            y1m = self.momentum_encoder(x1, boxes1, mask)
             y2m = self.momentum_encoder(x2, boxes2, mask)
-            z1m = self.momentum_projector(y1m)
-            z2m = self.momentum_projector(y2m)
+            target = self.momentum_projector(y2m)
 
-        return z1, z2, z1m, z2m
+        return pred, target
 
 
 def _projection_mlp(in_dims: int,

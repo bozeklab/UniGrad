@@ -33,12 +33,12 @@ class Pretrainer:
         self.scaler = torch.cuda.amp.GradScaler()
 
         # build loss
-        #self.loss = getattr(self, self.cfg.loss)
-        self.loss = Contrast(cfg)
+        self.loss = getattr(self, self.cfg.loss)
+        #self.loss = Contrast(cfg)
 
     def build_optimizer(self):
-        self.init_lr = int(self.cfg.base_lr)
-        #self.init_lr = self.cfg.base_lr * self.cfg.whole_batch_size / 256
+        #self.init_lr = int(self.cfg.base_lr)
+        self.init_lr = self.cfg.base_lr * self.cfg.whole_batch_size / 256
 
         optim_params = self.model.module.parameters()
         optimizer = torch.optim.SGD(optim_params, self.init_lr,
@@ -133,16 +133,16 @@ class Pretrainer:
                     data_time.update(time.time() - end)
 
                     # forward
-                    z1, z2 = self.model(x1, x2, boxes1, boxes2, mask)
+                    target, pred = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
 
                     # normalize
-                    z1 = torch.nn.functional.normalize(z1)
-                    z2 = torch.nn.functional.normalize(z2)
+                    #z1 = torch.nn.functional.normalize(z1)
+                    #z2 = torch.nn.functional.normalize(z2)
                     #z1m = torch.nn.functional.normalize(z1m)
                     #z2m = torch.nn.functional.normalize(z2m)
 
                     # compute loss
-                    loss = self.loss(z1, z2)
+                    loss = self.loss(target, pred)
 
                     # exit if loss nan
                     if torch.any(torch.isnan(loss)):
@@ -291,6 +291,28 @@ class Pretrainer:
         pos_sim = 0.5 * (pos_sim1 + pos_sim2)
         
         return loss, pos_sim
+
+    def loss_unigrad2(self, pred, target, cfg):
+        pred = self.student_norm(pred)
+        with torch.no_grad():
+            target = self.teacher_norm(target)
+
+        dense_pred = pred.reshape(-1, pred.shape[-1])
+        dense_target = target.reshape(-1, target.shape[-1])
+
+        # compute pos term
+        pos_term = ((dense_pred - dense_target) ** 2).sum(-1).mean()
+
+        # compute neg term
+        correlation = (dense_target.T @ dense_target) / dense_target.shape[0]
+        torch.distributed.all_reduce(correlation)
+        correlation = correlation / torch.distributed.get_world_size()
+
+        neg_term = torch.diagonal(dense_pred @ correlation @ dense_pred.T).mean()
+
+        loss = (pos_term + cfg.neg_weight * neg_term) / pred.shape[-1]
+
+        return loss
 
     def loss_simclr_grad_mm(self, z1, z2, z1m, z2m):
         # gather neg samples
