@@ -35,7 +35,7 @@ def prepare_unetr_model(chkpt_dir_vit, **kwargs):
                                   extract_layers=extract_layers,
                                   drop_rate=drop_rate,
                                   encoder=vit_encoder)
-    model.freeze_encoder()
+    #model.freeze_encoder()
     model.cuda()
     return model
 
