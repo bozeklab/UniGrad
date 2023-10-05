@@ -136,9 +136,9 @@ class Pretrainer:
                     target, pred = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
 
                     # normalize
-                    #target = torch.nn.functional.normalize(target)
+                    target = torch.nn.functional.normalize(target)
                     #z2 = torch.nn.functional.normalize(z2)
-                    #pred = torch.nn.functional.normalize(pred)
+                    pred = torch.nn.functional.normalize(pred)
                     #z2m = torch.nn.functional.normalize(z2m)
 
                     # compute loss
