@@ -292,7 +292,7 @@ class CellViT(nn.Module):
 
         self.apply(self._init_weights)
 
-        self.box_embed = PatchEmbed(img_size=16, patch_size=8, in_chans=256, embed_dim=768)
+        self.box_embed = PatchEmbed(img_size=16, patch_size=8, in_chans=64, embed_dim=768)
 
     def forward(self, x, boxes, mask):
         """Forward pass
@@ -338,9 +338,6 @@ class CellViT(nn.Module):
         #batch_size = x.shape[0]
         #embed_dim = x.shape[]
         #x = x.view(batch_size, h, w, embed_dim).permute(0, 3, 1, 2)
-        print('!!!sss')
-        print(x.shape)
-
 
         batch_index = torch.arange(0.0, batch_size).repeat(num_box).view(num_box, -1) \
             .transpose(0, 1).flatten(0, 1).to(x.device)
