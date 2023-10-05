@@ -37,7 +37,7 @@ class Pretrainer:
         self.loss = Contrast(cfg)
 
     def build_optimizer(self):
-        self.init_lr = self.cfg.base_lr
+        self.init_lr = int(self.cfg.base_lr)
         #self.init_lr = self.cfg.base_lr * self.cfg.whole_batch_size / 256
 
         optim_params = self.model.module.parameters()
