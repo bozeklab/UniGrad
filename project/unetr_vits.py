@@ -333,7 +333,7 @@ class CellViT(nn.Module):
 
     def extract_box_feature(self, x, boxes_info, scale_factor, mask):
         boxes_info=boxes_info
-        batch_size, h, w, embed_dim = x.shape
+        batch_size, embed_dim, h, w = x.shape
         num_box = boxes_info.shape[1]
         #batch_size = x.shape[0]
         #embed_dim = x.shape[]
