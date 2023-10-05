@@ -11,7 +11,7 @@ from project.pretrainer import Pretrainer
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('config_path', help='path to config')
-    parser.add_argument("local_rank", type=int, default=0, help="local rank")
+    parser.add_argument("--local_rank", type=int, default=0, help="local rank")
     
     args = parser.parse_args()
     return args
