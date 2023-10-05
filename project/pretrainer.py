@@ -136,9 +136,9 @@ class Pretrainer:
                     target, pred = self.model(x1, x2, boxes1, boxes2, mask, mm=mm)
 
                     # normalize
-                    #z1 = torch.nn.functional.normalize(z1)
+                    target = torch.nn.functional.normalize(target)
                     #z2 = torch.nn.functional.normalize(z2)
-                    #z1m = torch.nn.functional.normalize(z1m)
+                    pred = torch.nn.functional.normalize(pred)
                     #z2m = torch.nn.functional.normalize(z2m)
 
                     # compute loss
@@ -309,8 +309,6 @@ class Pretrainer:
         correlation = correlation / torch.distributed.get_world_size()
 
         neg_term = torch.diagonal(dense_pred @ correlation @ dense_pred.T).mean()
-        print(dense_pred @ correlation @ dense_pred.T)
-
 
         loss = (pos_term + cfg.neg_weight * neg_term) / pred.shape[-1]
 
