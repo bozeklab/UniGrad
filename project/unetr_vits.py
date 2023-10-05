@@ -327,8 +327,6 @@ class CellViT(nn.Module):
         z1 = z1[:, 1:, :].transpose(-1, -2).view(-1, self.embed_dim, *patch_dim)
 
         _, b1 = self._forward_upsample(z0, z1, z2, z3, z4, self.common_decoder)
-        print('!!!')
-        print(b1.shape)
         boxes_features = self.extract_box_feature(x=b1, boxes_info=boxes, scale_factor=1., mask=mask)
         boxes_features = self.box_embed(boxes_features).squeeze()
         return boxes_features
@@ -340,6 +338,9 @@ class CellViT(nn.Module):
         #batch_size = x.shape[0]
         #embed_dim = x.shape[]
         #x = x.view(batch_size, h, w, embed_dim).permute(0, 3, 1, 2)
+        print('!!!sss')
+        print(x.shape)
+
 
         batch_index = torch.arange(0.0, batch_size).repeat(num_box).view(num_box, -1) \
             .transpose(0, 1).flatten(0, 1).to(x.device)
