@@ -35,7 +35,7 @@ def prepare_unetr_model(chkpt_dir_vit, **kwargs):
                                   extract_layers=extract_layers,
                                   drop_rate=drop_rate,
                                   encoder=vit_encoder)
-    #model.freeze_encoder()
+    model.freeze_encoder()
     model.cuda()
     return model
 
@@ -120,9 +120,9 @@ class SiameseNet(nn.Module):
         self.momentum_encoder = copy.deepcopy(self.encoder)
         self.momentum_projector = copy.deepcopy(self.projector)
         self.teacher_norm = LayerNorm(self.cfg.projector_output_dim, elementwise_affine=False)
-        self.student_norm = LayerNorm(self.cfg.projector_output_dim)
-        for p in self.student_norm.parameters():
-            p.requires_grad = False
+        #self.student_norm = LayerNorm(self.cfg.projector_output_dim)
+        #for p in self.student_norm.parameters():
+        #    p.requires_grad = False
         for p in self.teacher_norm.parameters():
             p.requires_grad = False
         self.student_norm = nn.Identity()
@@ -158,8 +158,6 @@ class SiameseNet(nn.Module):
             y2m = self.momentum_encoder(x2, boxes2, mask)
             target = self.momentum_projector(y2m)
             target = self.teacher_norm(target)
-
-
         return pred, target
 
 

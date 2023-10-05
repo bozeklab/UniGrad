@@ -339,6 +339,9 @@ class CellViT(nn.Module):
         #embed_dim = x.shape[]
         #x = x.view(batch_size, h, w, embed_dim).permute(0, 3, 1, 2)
 
+        print('!!!')
+        print('x.shape')
+
         batch_index = torch.arange(0.0, batch_size).repeat(num_box).view(num_box, -1) \
             .transpose(0, 1).flatten(0, 1).to(x.device)
         roi_box_info = boxes_info.view(-1, 4).to(x.device)
