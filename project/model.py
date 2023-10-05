@@ -120,6 +120,9 @@ class SiameseNet(nn.Module):
         self.momentum_encoder = copy.deepcopy(self.encoder)
         self.momentum_projector = copy.deepcopy(self.projector)
         self.teacher_norm = LayerNorm(self.cfg.projector_output_dim, elementwise_affine=False)
+        self.student_norm = LayerNorm(self.cfg.projector_output_dim)
+        for p in self.student_norm.parameters():
+            p.requires_grad = False
         for p in self.teacher_norm.parameters():
             p.requires_grad = False
         self.student_norm = nn.Identity()
@@ -147,6 +150,7 @@ class SiameseNet(nn.Module):
 
         y1 = self.encoder(x1, boxes1, mask)
         pred = self.projector(y1)
+        pred = self.student_norm(pred)
 
         # target branch
         with torch.no_grad():
