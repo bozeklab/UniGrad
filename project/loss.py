@@ -6,7 +6,7 @@ class Contrast(torch.nn.Module):
     def __init__(self, cfg):
         super().__init__()
         device = torch.device(f"cuda:{cfg.local_rank}")
-        self.batch_size = cfg.batch_size
+        self.batch_size = cfg.whole_batch_size
         self.register_buffer("temp", torch.tensor(cfg.temperature).to(torch.device(f"cuda:{cfg.local_rank}")))
         self.register_buffer("neg_mask", (~torch.eye(cfg.batch_size * 2,
                                                      cfg.batch_size * 2, dtype=bool).to(device)).float())
