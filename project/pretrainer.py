@@ -307,10 +307,10 @@ class Pretrainer:
         correlation = (dense_target.T @ dense_target) / dense_target.shape[0]
         torch.distributed.all_reduce(correlation)
         correlation = correlation / torch.distributed.get_world_size()
+        print(correlation)
 
         neg_term = torch.diagonal(dense_pred @ correlation @ dense_pred.T).mean()
 
-        print(neg_term)
 
         loss = (pos_term + cfg.neg_weight * neg_term) / pred.shape[-1]
 
